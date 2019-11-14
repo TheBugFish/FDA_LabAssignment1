@@ -33,13 +33,26 @@ def gradient(sampleset, labelset, theta):
         result += ((hypothesis(i, theta) - labelset[index]) * i)
 
 
-def getRandomNumbers():
+def getRandomNumbers(sampleAmount):
+    return [1, 2, 3, 4]
 
 
-def drawnSamples(samples, randomNumbers):
+def drawSamples(samples, randomNumbers, featureCount):
+    i = 0
+    randomSample = np.empty(featureCount)
+    while i < len(randomNumbers):
+        np.append(randomSample, samples[randomNumbers[i]])
+        i += 1
+    return randomSample
 
 
-def drawnLabels(labels, randomNumbers):
+def drawLabels(labels, randomNumbers):
+    i = 0
+    randomSample = np.empty(1)
+    while i < len(randomNumbers):
+        np.append(randomSample, labels[randomNumbers[i]])
+        i += 1
+    return randomSample
 
 
 def SGD(samples, labels):
@@ -48,10 +61,9 @@ def SGD(samples, labels):
     t = 0
     learningRate = 100
     sampleAmount = 10
-    randomSamples
     while t < T:
-        randomNumbers = getRandomNumbers()
-        drawnSamples = drawSamples(samples, randomNumbers)
+        randomNumbers = getRandomNumbers(sampleAmount)
+        drawnSamples = drawSamples(samples, randomNumbers, 3)
         drawnLabels = drawLabels(labels, randomNumbers)
         j = 0
         sum = 0
