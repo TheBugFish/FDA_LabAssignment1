@@ -1,85 +1,63 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-import math
 import random
+
+
+class LogisticRegression:
+    def __init__(self, iterations=100, sampleSize=20, learningRate=0.1):
+        self.learningRate = learningRate
+        self.iterations = iterations
+        self.sampleSize = sampleSize
+
+    def hypothesis(self, sampleset):
+        z = np.dot(sampleset, self.theta)
+        return 1 / (1 + np.exp(-z))
+
+    def loss(self, sampleset, labelset, h):
+        return (-labelset * np.log(h) - (1 - labelset) * np.log(1 - h)).mean()
+
+    def gradient(self, sampleset, labelset, h):
+        return np.dot(sampleset.T, (h - labelset))
+
+    def getRandomNumbers(self, datalength):
+        return random.sample(range(datalength), self.sampleSize)
+
+    def drawSamples(self, samples, randomNumbers, featureCount):
+        i = 0
+        randomSample = np.zeros(shape=(len(randomNumbers), featureCount))
+        while i < len(randomNumbers):
+            randomSample[i] = samples[randomNumbers[i]]
+            i += 1
+        return randomSample
+
+    def drawLabels(self, labels, randomNumbers):
+        i = 0
+        randomSample = np.zeros(shape=(len(randomNumbers), 1))
+        while i < len(randomNumbers):
+            randomSample[i] = labels[randomNumbers[i]]
+            i += 1
+        return randomSample
+
+    def train(self, samples, labels):
+        self.theta = np.zeros(samples.shape[1])
+        print(self.theta)
+        t = 0
+        while t < self.iterations:
+            randomNumbers = self.getRandomNumbers(len(samples))
+            drawnSamples = self.drawSamples(samples, randomNumbers, 3)
+            drawnLabels = self.drawLabels(labels, randomNumbers)
+            h = self.hypothesis(drawnSamples)
+            sum = self.gradient(drawnSamples, drawnLabels, h) / \
+                self.loss(drawnSamples, drawnLabels, h)
+            self.theta -= self.learningRate * (1/self.sampleSize) * sum
+            self.learningRate = (self.learningRate / np.sqrt(t+1))
+            t += 1
 
 
 def convertLabel(l):
     labelString = l.decode()
     return 0 if labelString == 'Iris-setosa' else 1
-
-
-def hypothesis(sample):
-    res = 0.
-    for i in sample:
-        res += (1 / (1 + math.exp(-i)))
-    return res
-
-
-def loss(sampleset, labelset, theta):
-    result = 0
-    index = 0
-    for i in sampleset:
-        result += (-labelset[index] * math.log(hypothesis(i))) - (
-            1 - labelset[index]) * math.log(1 - hypothesis(i))
-        index += 1
-    print(result)
-    return result
-
-
-def gradient(sampleset, labelset, theta):
-    result = 0
-    index = 0
-    for i in sampleset:
-        result += ((hypothesis(i) - labelset[index]) * i)
-    return result
-
-
-def getRandomNumbers(sampleAmount, datalength):
-    return random.sample(range(datalength), sampleAmount)
-
-
-def drawSamples(samples, randomNumbers, featureCount):
-    i = 0
-    randomSample = np.zeros(shape=(len(randomNumbers), featureCount))
-    while i < len(randomNumbers):
-        randomSample[i] = samples[randomNumbers[i]]
-        i += 1
-    return randomSample
-
-
-def drawLabels(labels, randomNumbers):
-    i = 0
-    randomSample = np.zeros(shape=(len(randomNumbers), 1))
-    while i < len(randomNumbers):
-        randomSample[i] = labels[randomNumbers[i]]
-        i += 1
-    return randomSample
-
-
-def SGD(samples, labels):
-    theta = 0
-    T = 100
-    t = 0
-    learningRate = 0.1
-    sampleAmount = 20
-    while t < T:
-        randomNumbers = getRandomNumbers(sampleAmount, len(samples))
-        drawnSamples = drawSamples(samples, randomNumbers, 3)
-        drawnLabels = drawLabels(labels, randomNumbers)
-        j = 0
-        sum = 0
-        test = loss(drawnSamples, drawnLabels, theta)
-        print(test)
-        while j < len(drawnSamples):
-            sum += (gradient(drawnSamples, drawnLabels, theta)
-                    * loss(drawnSamples, drawnLabels, theta))
-
-            j += 1
-        theta = theta - learningRate * 1/len(drawnSamples) * sum
-        learningRate = learningRate / math.sqrt(t)
-        t += 1
 
 
 data = np.loadtxt('iris_data.csv', delimiter=',', usecols={0, 1, 2})
@@ -103,5 +81,6 @@ while idx < len(x):
         ax.scatter(x[idx], y[idx], z[idx], color=colors[1])
     idx += 1
 
-# plt.show()
-SGD(data, labels)
+plt.show()
+model = LogisticRegression()
+model.train(data, labels)
